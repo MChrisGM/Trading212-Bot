@@ -1,0 +1,30 @@
+{
+    "timeframe": 1,
+    "close": {
+        "take_profit": 0.0001,
+        "stop_loss": 0.01
+    },
+    "rollover": {
+        "has_rolledover": false,
+        "rollover_period": 4
+    },
+    "bias": {
+        "last_trade_influence": 0.6,
+        "bias_influence": 0.6,
+        "bias_range": 2.5
+    },
+    "trading_options": [
+        "sell",
+        "buy"
+    ],
+    "tools": {
+        "ema_period": 4,
+        "sma_period": 4,
+        "rsi_period": 2,
+        "rsi_band": [
+            50,
+            50
+        ],
+        "min_difference": 0.3
+    }
+}
