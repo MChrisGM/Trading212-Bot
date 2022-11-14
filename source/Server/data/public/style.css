@@ -1,41 +1,61 @@
-body{
-    margin:0;
-    padding:0;
-    color: rgb(255,255,255);
-    background-color: rgb(51,51,51);
+body {
+    margin: 0;
+    padding: 0;
+    color: rgb(255, 255, 255);
+    background-color: rgb(51, 51, 51);
     text-align: center;
-    width:100%;
-    overflow: hidden;
+    width: 100%;
+    overflow:auto;
 }
-#QRCode {
-    display:block;
-    position:absolute;
-    right:10px;
-    top:10px
+
+hr{ 
+    color: rgb(255,255,255);
+    margin: 0;
+    max-height: 1px;
+    height:1px;
+    border-width: 1px;
+    margin-block: 0px;
 }
-#container{
+
+#container {
     display: table;
     text-align: center;
     position: absolute;
-    background-color: rgb(71,71,71);
-    margin:2%;
+    background-color: rgb(71, 71, 71);
+    margin: 2%;
     max-width: 96%;
     max-height: 96%;
     width: 100%;
     height: 100%;
     border-radius: 3%;
     font-size: 4vw;
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
-#account{
 
+#QRCode {
+    display: block;
+    position: absolute;
+    top: 2%;
+    right: 2%;
+    max-width: 15vw;
+    max-height: 15vw;
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
 }
-#live{
-    
+
+#account {
+    min-height: 10%;
 }
-#candle{
-    
+
+#live {
+    min-height: 10%;
 }
-#graph{
-    
+
+#candle {
+    min-height: 10%;
+}
+
+#graph {
+    min-height: 70%;
 }

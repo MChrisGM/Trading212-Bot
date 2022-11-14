@@ -25,7 +25,7 @@ try {
     (async function () {
         const url = await ngrok.connect({
             proto: 'http',
-            addr: 8000,
+            addr: sr_param.address,
             authtoken: config.NGROK_AUTH_TOKEN,
             region: config.NGROK_REGION,
         });
@@ -34,10 +34,10 @@ try {
             errorCorrectionLevel: 'H',
             type: 'terminal',
             quality: 1,
-            margin: 2,
+            margin: 1,
             color: {
                 dark: '#FFF',
-                light: '#333333',
+                light: '#333',
             },
         }
         QRCode.toDataURL(url, opts).then(qrImage => { IndexPageURLCode = qrImage; }).catch(err => { console.error(err) });
@@ -107,6 +107,15 @@ app.listen(sr_param.address, () => {
 });
 
 app.use(express.static('./data/public'));
+
+app.post('/server-data', (req, res, next) => {
+    res.json({ 'Account': account, 'Instrument': instrument, 'Parameters': tr_param, 'QRCode': IndexPageURLCode });
+});
+
+
+
+
+
 
 function filter(obj1, obj2) {
     var result = {};
