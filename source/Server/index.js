@@ -262,20 +262,20 @@ function calculateIndicators(t) {
     }
 
 
-    instrument.tools.ema1[t['TS']] = 0;
+    instrument.tools.ema1[t['TS']] = instrument.price.sell_p;
     let ema_mult = 2 / (tr_param.tools.ema_period + 1);
     if (!instrument.tools.ema1[t['TS'] - 1]) {
         instrument.tools.ema1[t['TS']] = instrument.price.sell_p;
     } else {
         let prev_ema = instrument.tools.ema1[t['TS'] - 1] * (1 - ema_mult);
-        let new_ema = instrument.tools.sell_p * ema_mult + prev_ema;
+        let new_ema = instrument.price.sell_p * ema_mult + prev_ema;
         instrument.tools.ema1[t['TS']] = new_ema;
     }
-    instrument.tools.sma1[t['TS']] = 0;
+    instrument.tools.sma1[t['TS']] = instrument.price.sell_p;
     let sum = 0;
     let idx = 0;
     if (Object.keys(instrument.tools.sma1).length > tr_param.tools.sma_period) {
-        for (let i = 0; i < tr_param.tools.sma_period * tr_param.tools.timeframe; i) {
+        for (let i = 0; i < tr_param.tools.sma_period * tr_param.timeframe; i) {
             if (instrument.history[t['TS'] - i]) {
                 sum += instrument.history[t['TS'] - i]['Price']['SELL'];
                 idx++;

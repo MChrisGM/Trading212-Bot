@@ -7,5 +7,5 @@
     "reset_instrument": false,
     "show_changed_parameters":false,
     "show_instrument":false,
-    "show_account":true
+    "show_account":false
 }
