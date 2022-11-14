@@ -20,7 +20,7 @@ window.onload = function () {
             y: yaxis,
             mode: 'lines',
             line: {
-                color: 'rgb(55, 128, 191)',
+                color: 'rgb(125, 255, 150)',
                 width: 3
             }
         };
