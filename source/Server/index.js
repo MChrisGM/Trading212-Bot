@@ -106,6 +106,8 @@ app.listen(sr_param.address, () => {
 
 });
 
+app.use(express.static('./data/public'));
+
 function filter(obj1, obj2) {
     var result = {};
     for (key in obj1) {
