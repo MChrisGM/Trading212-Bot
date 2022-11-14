@@ -98,11 +98,29 @@ app.listen(sr_param.address, () => {
         let imported_sr_param = JSON.parse(fs.readFileSync('./data/server_parameters.json', 'utf8'));
         let changed_sr_param = filter(sr_param, imported_sr_param);
         sr_param = imported_sr_param;
-        console.log('\n---Changed Parameters---');
-        console.dir(changed_tr_param, { depth: null });
-        console.dir(changed_sr_param, { depth: null });
-        console.log('------------------------\n');
+        if (sr_param.show_changed_parameters) {
+            console.log('\n---Changed Parameters---');
+            console.dir(changed_tr_param, { depth: null });
+            console.dir(changed_sr_param, { depth: null });
+            console.log('------------------------\n');
+        }
     }, sr_param.parameter_update_time * 1000);
+
+    setInterval(function () {
+        if (sr_param.show_instrument) {
+            console.log('\n---Instrument---');
+            console.dir(instrument, { depth: null });
+            console.log('------------------------\n');
+        }
+    }, sr_param.instrument_update_time * 1000);
+
+    setInterval(function () {
+        if (sr_param.show_account) {
+            console.log('\n---Account---');
+            console.dir(account, { depth: null });
+            console.log('------------------------\n');
+        }
+    }, sr_param.account_update_time * 1000);
 
     setInterval(function () {
         if (sr_param.reset_account) {

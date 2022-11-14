@@ -14,9 +14,6 @@ window.onload = function () {
             .catch(error => console.error(error))
     }, 250);
 
-
-    
-
     function createAccountGraph(response){
         let xaxis = Object.keys(response['Account'].history).map(function (x) { return new Date(x * 60 * 1000) });
         let yaxis = Object.values(response['Account'].history).map(function (x) { return parseFloat(x) })
@@ -38,7 +35,7 @@ window.onload = function () {
                     color: 'white'
                 },
                 showticklabels: true,
-                tickangle: 'auto',
+                tickangle: 0,
                 tickfont: {
                     family: 'Old Standard TT, serif',
                     size: 18,
@@ -99,7 +96,7 @@ window.onload = function () {
                     color: 'white'
                 },
                 showticklabels: true,
-                tickangle: 'auto',
+                tickangle: 0,
                 tickfont: {
                     family: 'Old Standard TT, serif',
                     size: 18,
@@ -139,7 +136,6 @@ window.onload = function () {
         Plotly.newPlot('PriceGraph', data, layout,{displayModeBar: false, responsive: true});
     }
 
-
     function handleDataResponse(response) {
 
         let av = parseFloat(response['Account'].acc_value);
@@ -163,7 +159,6 @@ window.onload = function () {
         createPriceGraph(response);
 
     }
-
 
 }
 

@@ -1,6 +1,11 @@
 {
     "address": 8000,
-    "parameter_update_time": 10,
+    "parameter_update_time": 1,
+    "instrument_update_time":10,
+    "account_update_time":10,
     "reset_account": false,
-    "reset_instrument": false
+    "reset_instrument": false,
+    "show_changed_parameters":false,
+    "show_instrument":false,
+    "show_account":true
 }
