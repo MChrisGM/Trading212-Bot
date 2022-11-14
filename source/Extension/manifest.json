@@ -1,0 +1,30 @@
+{
+  "manifest_version": 2,
+
+  "name": "Trading212 Extension",
+  "description": "This extension gives you access to the Trading212 web interface.",
+  "version": "1.0",
+  
+  "browser_action": {
+	  
+	},
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+
+  "content_security_policy": "script-src 'self' object-src 'self'",
+
+  "web_accessible_resources": ["normal_popup.html"],
+  
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "declarativeContent",
+    "activeTab",
+		"tabs",
+		"http://127.0.0.1:8000/",
+    "identity",
+    "notifications"
+	]
+}

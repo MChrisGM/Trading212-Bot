@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Trading212</title>
+    <script src="HackTimer.min.js"></script>
+    <script src="jquery-3.1.0.min.js"></script>
+
+    <style>
+        body {
+            width: 200px;
+            background-color: #2e313b;
+            color: #a4a9ba;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            color: #fff;
+            background-color: #00a7e1;
+            text-transform: uppercase;
+            align-items: center;
+            border-radius: 2px;
+            box-sizing: border-box;
+            outline: none;
+            justify-content: center;
+        }
+        .btn:hover{
+            background-color: #4fc4eb;
+        }
+
+        .unselectable {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+
+</head>
+
+<body class="unselectable">
+    <h2><b>Connect to NODE.JS</b></h2>
+    <button id="connect" class="btn">Connect to server</button>
+    <h3>Status: </h3>
+    <h3 id="server_status"></h3>
+    <hr>
+    <h3><b>Order:</b></h3>
+    <button id="buy" class="btn">Buy</button><button id="sell" class="btn">Sell</button><button id="close" class="btn">Close</button>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
