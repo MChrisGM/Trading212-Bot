@@ -87,7 +87,7 @@ window.onload = function () {
 
     };
 
-    Plotly.newPlot(accountPlot, data, layout, { displayModeBar: false, responsive: true });
+    Plotly.newPlot(accountPlot, data, layout, { displayModeBar: true, responsive: true });
 
     setInterval(function () {
         fetch(window.location.href + 'server-data', { method: 'POST' })
@@ -175,8 +175,7 @@ window.onload = function () {
         }
 
         updateGraphData(response);
-
-        Plotly.newPlot(accountPlot, data, layout);
+        Plotly.react(accountPlot, data, layout);
 
     }
 
