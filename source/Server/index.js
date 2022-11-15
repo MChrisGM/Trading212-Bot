@@ -13,6 +13,12 @@ const config = dotenv.parsed;
 let tr_param = require('./data/trading_parameters.json');
 let sr_param = require('./data/server_parameters.json');
 
+let clog = console.log;
+console.log = function(data){clog(getTime()['R']+' -> '+data);}
+
+let cdir = console.dir;
+console.dir = function(data){console.log('');cdir(data);}
+
 console.log('\nServer Parameters:');
 console.dir(sr_param, { depth: null });
 console.log('\nTrading Parameters:');
@@ -162,12 +168,6 @@ app.listen(sr_param.address, () => {
 });
 
 app.use(express.static('./data/public'));
-
-let clog = console.log;
-console.log = function(data){clog(getTime()['R']+' -> '+data);}
-
-let cdir = console.dir;
-console.dir = function(data){console.log('\n');cdir(data);}
 
 app.post('/server-data', (req, res, next) => {
     res.json({ 'Account': account, 'Instrument': instrument, 'Parameters': tr_param, 'QRCode': IndexPageURLCode });

@@ -1,9 +1,93 @@
 window.onload = function () {
 
+    let show_last_points = 30;
+    let point_left = show_last_points;
+
     let acc_val_label = document.getElementById('acc_val');
     let live_val_label = document.getElementById('live_val');
     let candle_time_label = document.getElementById('candle_time');
     let qrcode = document.getElementById('QRCode');
+
+    let accountPlot = document.getElementById("AccountGraph");
+
+    let xaxis;
+    let yaxis;
+    let xaxisPrice;
+    let yaxisPrice;
+    let xaxisSMA;
+    let yaxisSMA;
+    let xaxisEMA;
+    let yaxisEMA;
+    let data;
+
+    let layout = {
+        xaxis: {
+            titlefont: {
+                family: 'Arial, sans-serif',
+                size: 18,
+                color: 'white'
+            },
+            showticklabels: true,
+            tickangle: 0,
+            tickfont: {
+                family: 'Old Standard TT, serif',
+                size: 18,
+                color: 'white'
+            },
+            color: 'white',
+            showexponent: 'all',
+            type: 'date'
+        },
+        yaxis: {
+            title: 'Account Value',
+            titlefont: {
+                family: 'Arial, sans-serif',
+                size: 20,
+                color: 'white'
+            },
+            showticklabels: true,
+            tickangle: -90,
+            tickfont: {
+                family: 'Old Standard TT, serif',
+                size: 18,
+                color: 'white'
+            },
+            color: 'white',
+            showexponent: 'all'
+        },
+        yaxis2: {
+            title: 'Price',
+            titlefont: {
+                family: 'Arial, sans-serif',
+                size: 20,
+                color: 'white'
+            },
+            showticklabels: true,
+            tickangle: -90,
+            tickfont: {
+                family: 'Old Standard TT, serif',
+                size: 18,
+                color: 'white'
+            },
+            color: 'white',
+            showexponent: 'all',
+            overlaying: 'y',
+            side: 'right',
+        },
+        margin: {
+            l: 50,
+            r: 50,
+            b: 20,
+            t: 20,
+            pad: 0
+        },
+        showlegend: false,
+        paper_bgcolor: 'rgb(71,71,71)',
+        plot_bgcolor: 'rgb(51,51,51)',
+
+    };
+
+    Plotly.newPlot(accountPlot, data, layout, { displayModeBar: false, responsive: true });
 
     setInterval(function () {
         fetch(window.location.href + 'server-data', { method: 'POST' })
@@ -12,9 +96,14 @@ window.onload = function () {
             .catch(error => console.error(error))
     }, 250);
 
-    function createAccountGraph(response) {
-        let xaxis = Object.keys(response['Account'].history).map(function (x) { return new Date(x * 60 * 1000) });
-        let yaxis = Object.values(response['Account'].history).map(function (x) { return parseFloat(x) })
+    function notZero(x) {
+        if (x == 0) { return null; }
+        else { return x; }
+    }
+
+    function updateGraphData(response) {
+        xaxis = Object.keys(response['Account'].history).map(function (x) { return new Date(x * 60 * 1000) });
+        yaxis = Object.values(response['Account'].history).map(function (x) { return notZero(parseFloat(x)) });
         var trace1 = {
             x: xaxis,
             y: yaxis,
@@ -25,8 +114,8 @@ window.onload = function () {
             }
         };
 
-        let xaxisPrice = Object.keys(response['Instrument'].history).map(function (x) { return new Date(x * 60 * 1000) });
-        let yaxisPrice = Object.values(response['Instrument'].history).map(function (x) { return parseFloat(x['Price']['SELL']) })
+        xaxisPrice = Object.keys(response['Instrument'].history).map(function (x) { return new Date(x * 60 * 1000) });
+        yaxisPrice = Object.values(response['Instrument'].history).map(function (x) { return notZero(parseFloat(x['Price']['SELL'])) });
         var price = {
             x: xaxisPrice,
             y: yaxisPrice,
@@ -38,8 +127,8 @@ window.onload = function () {
             }
         };
 
-        let xaxisSMA = Object.keys(response['Instrument'].tools.sma1).map(function (x) { return new Date(x * 60 * 1000) });
-        let yaxisSMA = Object.values(response['Instrument'].tools.sma1).map(function (x) { return parseFloat(x) })
+        xaxisSMA = Object.keys(response['Instrument'].tools.sma1).map(function (x) { return new Date(x * 60 * 1000) });
+        yaxisSMA = Object.values(response['Instrument'].tools.sma1).map(function (x) { return notZero(parseFloat(x)) });
         var sma = {
             x: xaxisSMA,
             y: yaxisSMA,
@@ -51,8 +140,8 @@ window.onload = function () {
             }
         };
 
-        let xaxisEMA = Object.keys(response['Instrument'].tools.ema1).map(function (x) { return new Date(x * 60 * 1000) });
-        let yaxisEMA = Object.values(response['Instrument'].tools.ema1).map(function (x) { return parseFloat(x) })
+        xaxisEMA = Object.keys(response['Instrument'].tools.ema1).map(function (x) { return new Date(x * 60 * 1000) });
+        yaxisEMA = Object.values(response['Instrument'].tools.ema1).map(function (x) { return notZero(parseFloat(x)) });
         var ema = {
             x: xaxisEMA,
             y: yaxisEMA,
@@ -63,162 +152,7 @@ window.onload = function () {
                 width: 3
             }
         };
-
-        var data = [trace1, price, sma, ema];
-        var layout = {
-            xaxis: {
-                titlefont: {
-                    family: 'Arial, sans-serif',
-                    size: 18,
-                    color: 'white'
-                },
-                showticklabels: true,
-                tickangle: 0,
-                tickfont: {
-                    family: 'Old Standard TT, serif',
-                    size: 18,
-                    color: 'white'
-                },
-                color: 'white',
-                showexponent: 'all'
-            },
-            yaxis: {
-                title: 'Account Value',
-                titlefont: {
-                    family: 'Arial, sans-serif',
-                    size: 20,
-                    color: 'white'
-                },
-                showticklabels: true,
-                tickangle: -90,
-                tickfont: {
-                    family: 'Old Standard TT, serif',
-                    size: 18,
-                    color: 'white'
-                },
-                color: 'white',
-                showexponent: 'all'
-            },
-            yaxis2: {
-                title: 'Price',
-                titlefont: {
-                    family: 'Arial, sans-serif',
-                    size: 20,
-                    color: 'white'
-                },
-                showticklabels: true,
-                tickangle: -90,
-                tickfont: {
-                    family: 'Old Standard TT, serif',
-                    size: 18,
-                    color: 'white'
-                },
-                color: 'white',
-                showexponent: 'all',
-                overlaying: 'y',
-                side: 'right',
-            },
-            margin: {
-                l: 50,
-                r: 50,
-                b: 20,
-                t: 20,
-                pad: 0
-            },
-            showlegend: false,
-            paper_bgcolor: 'rgb(71,71,71)',
-            plot_bgcolor: 'rgb(51,51,51)',
-
-        };
-        Plotly.newPlot('AccountGraph', data, layout, { displayModeBar: false, responsive: true });
-    }
-
-    function createPriceGraph(response) {
-        let xaxisPrice = Object.keys(response['Instrument'].history).map(function (x) { return new Date(x * 60 * 1000) });
-        let yaxisPrice = Object.values(response['Instrument'].history).map(function (x) { return parseFloat(x['Price']['SELL']) })
-        var price = {
-            x: xaxisPrice,
-            y: yaxisPrice,
-            mode: 'lines',
-            line: {
-                color: 'rgb(55, 128, 191)',
-                width: 3
-            }
-        };
-
-        let xaxisSMA = Object.keys(response['Instrument'].tools.sma1).map(function (x) { return new Date(x * 60 * 1000) });
-        let yaxisSMA = Object.values(response['Instrument'].tools.sma1).map(function (x) { return parseFloat(x) })
-        var sma = {
-            x: xaxisSMA,
-            y: yaxisSMA,
-            mode: 'lines',
-            line: {
-                color: 'rgb(255, 255, 255)',
-                width: 3
-            }
-        };
-
-        let xaxisEMA = Object.keys(response['Instrument'].tools.ema1).map(function (x) { return new Date(x * 60 * 1000) });
-        let yaxisEMA = Object.values(response['Instrument'].tools.ema1).map(function (x) { return parseFloat(x) })
-        var ema = {
-            x: xaxisEMA,
-            y: yaxisEMA,
-            mode: 'lines',
-            line: {
-                color: 'rgb(255, 255, 0)',
-                width: 3
-            }
-        };
-
-        var data = [price, sma, ema];
-        var layout = {
-            xaxis: {
-                titlefont: {
-                    family: 'Arial, sans-serif',
-                    size: 18,
-                    color: 'white'
-                },
-                showticklabels: true,
-                tickangle: 0,
-                tickfont: {
-                    family: 'Old Standard TT, serif',
-                    size: 18,
-                    color: 'white'
-                },
-                color: 'white',
-                showexponent: 'all'
-            },
-            yaxis: {
-                title: 'Price',
-                titlefont: {
-                    family: 'Arial, sans-serif',
-                    size: 20,
-                    color: 'white'
-                },
-                showticklabels: true,
-                tickangle: -90,
-                tickfont: {
-                    family: 'Old Standard TT, serif',
-                    size: 18,
-                    color: 'white'
-                },
-                color: 'white',
-                showexponent: 'all'
-            },
-
-            margin: {
-                l: 50,
-                r: 20,
-                b: 20,
-                t: 20,
-                pad: 0
-            },
-            showlegend: false,
-            paper_bgcolor: 'rgb(71,71,71)',
-            plot_bgcolor: 'rgb(51,51,51)',
-
-        };
-        Plotly.newPlot('PriceGraph', data, layout, { displayModeBar: false, responsive: true });
+        data = [trace1, price, sma, ema];
     }
 
     function handleDataResponse(response) {
@@ -240,8 +174,9 @@ window.onload = function () {
             live_val_label.style.color = 'rgb(255,255,255)';
         }
 
-        createAccountGraph(response);
-        // createPriceGraph(response);
+        updateGraphData(response);
+
+        Plotly.newPlot(accountPlot, data, layout);
 
     }
 
