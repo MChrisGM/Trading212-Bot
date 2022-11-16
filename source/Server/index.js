@@ -14,10 +14,10 @@ let tr_param = require('./data/trading_parameters.json');
 let sr_param = require('./data/server_parameters.json');
 
 let clog = console.log;
-console.log = function(data){clog(getTime()['R']+' -> '+data);}
+console.log = function (data) { clog(getTime()['R'] + ' -> ' + data); }
 
 let cdir = console.dir;
-console.dir = function(data){console.log('');cdir(data);}
+console.dir = function (data, options) { console.log(''); cdir(data, options); }
 
 console.log('\nServer Parameters:');
 console.dir(sr_param, { depth: null });
@@ -25,6 +25,10 @@ console.log('\nTrading Parameters:');
 console.dir(tr_param, { depth: null });
 
 let IndexPageURLCode = '';
+
+const BUY = 'buy';
+const SELL = 'sell';
+const CLOSE = 'close';
 
 try {
     (async function () {
@@ -72,6 +76,7 @@ let instrument = {
     tp: 0,
     sl: 0,
     current_decision: '',
+    currently_deciding: false,
     tools: {
         current_bias: 0,
         trade_influence: 0,
@@ -199,48 +204,109 @@ function makeDecision() {
     let options = tr_param.trading_options;
     const t = getTime();
 
-    if(instrument.currently_open){
-        
-        if(instrument.tools.ema1.length >= instrument.tools.ema_period && instrument.tools.sma1.length >= instrument.tools.sma_period){
-            
-            let last_price = instrument.history[t['TS']-1]['Price']['SELL'];
+    if (instrument.currently_deciding) { return { decision, reason } }
 
-            let emaN = instrument.tools.ema1[t['TS']-1];
-            let emaO = instrument.tools.ema1[t['TS']-2];
+    instrument.currently_deciding = true;
+
+    if (instrument.currently_open) {
+
+        if (Object.entries(instrument.tools.ema1).length >= tr_param.tools.ema_period * 2 && Object.entries(instrument.tools.sma1).length >= tr_param.tools.sma_period * 2) {
+
+            let last_price = instrument.history[t['TS'] - 1]['Price'][SELL];
+
+            let emaN = instrument.tools.ema1[t['TS'] - 1];
+            let emaO = instrument.tools.ema1[t['TS'] - 2];
             let ema_angle = Math.atan2(emaN - emaO, 1) * 180 / Math.PI;
 
-            let smaN = instrument.tools.sma1[t['TS']-1];
-            let smaO = instrument.tools.sma1[t['TS']-2];
+            let smaN = instrument.tools.sma1[t['TS'] - 1];
+            let smaO = instrument.tools.sma1[t['TS'] - 2];
             let sma_angle = Math.atan2(smaN - smaO, 1) * 180 / Math.PI;
 
-            if(ema_angle > 0 && sma_angle > 0){
-                decision = 'buy';
-                reason = 'Both EMA and SMA going up. Angles: '+ema_angle+', '+sma_angle;
-            }else if(ema_angle < 0 && sma_angle < 0){
-                decision = 'sell';
-                reason = 'Both EMA and SMA going down. Angles: '+ema_angle+', '+sma_angle;
-            }else if(emaN > last_price){
-                decision = 'buy';
-                reason = 'EMA above last price.';
-            }else if(emaN < last_price){
-                decision = 'sell';
-                reason = 'EMA below last price.';
+            if (ema_angle > 0 && sma_angle > 0 && emaN > smaN) {
+                decision = BUY;
+                reason = 'Both EMA and SMA going up.\n Angles: ' + ema_angle + ', ' + sma_angle;
+                instrument.history[t['TS']]['Decision'] = { 'Decision': decision, 'Reason': reason, 'Closed': false };
+            } else if (ema_angle < 0 && sma_angle < 0 && emaN < smaN) {
+                decision = SELL;
+                reason = 'Both EMA and SMA going down.\n Angles: ' + ema_angle + ', ' + sma_angle;
+                instrument.history[t['TS']]['Decision'] = { 'Decision': decision, 'Reason': reason, 'Closed': false };
+            } else {
+                let difference = emaN - smaN;
+                let bias = normal(difference, -tr_param.bias.bias_range, tr_param.bias.bias_range);
+                let trade_influence = 0;
+                let h1 = account.history[t['TS'] - 2];
+                let h2 = account.history[t['TS'] - 1];
+                if (instrument.history[t['TS'] - 1]['Decision']) {
+                    if (h1 < h2) {
+                        if (instrument.history[t['TS'] - 1]['Decision']['Decision'] == BUY) {
+                            trade_influence += tr_param.bias.last_trade_influence;
+                        } else {
+                            trade_influence -= tr_param.bias.last_trade_influence;
+                        }
+                    } else if (h1 > h2) {
+                        if (instrument.history[t['TS'] - 1]['Decision']['Decision'] == BUY) {
+                            trade_influence -= tr_param.bias.last_trade_influence;
+                        } else {
+                            trade_influence += tr_param.bias.last_trade_influence;
+                        }
+                    }
+                }
+                bias += trade_influence;
+                let d = getRndBias(0, 1, bias, tr_param.bias.bias_influence);
+                instrument.tools.current_bias = bias;
+                instrument.tools.trade_influence = trade_influence;
+                decision = options[Math.round(d)];
+                reason = 'Bias was: ' + bias + '.\n Choice was: ' + d + '.\n Trade influence was: ' + trade_influence;
+                instrument.history[t['TS']]['Decision'] = { 'Decision': decision, 'Reason': reason, 'Closed': false };
             }
-        }else{
-            reason = 'Not enough SMA or EMA data.';
+            // else if(emaN > last_price){
+            //     decision = BUY;
+            //     reason = 'EMA above last price.';
+            // }else if(emaN < last_price){
+            //     decision = SELL;
+            //     reason = 'EMA below last price.';
+            // }
+        } else {
+            reason = 'Not enough SMA or EMA data.\n Lenghts: ' + Object.entries(instrument.tools.ema1).length + ', ' + Object.entries(instrument.tools.sma1).length;
         }
 
-        if(decision == 'buy' || decision == 'sell'){
+        if (decision == BUY || decision == SELL) {
             instrument.currently_open = false;
             instrument.current_decision = decision;
+            instrument.history[t['TS']]['Decision'] = { "Decision": decision, "Reason": reason }
+            if(decision == BUY){
+                instrument.tp = instrument.price.sell_p * (1 + (tr_param.close.take_profit / 100))
+                instrument.sl = instrument.price.sell_p * (1 - (tr_param.close.stop_loss / 100))
+            }else if(decision == SELL){
+                instrument.tp = instrument.price.buy_p * (1 - (tr_param.close.take_profit / 100))
+                instrument.sl = instrument.price.buy_p * (1 + (tr_param.close.stop_loss / 100))
+            }
+            reason += '\n Take Profit: '+instrument.tp+', Stop Loss: '+instrument.sl;
         }
-    }else{
-        if(instrument.time[1] < 1){
-            decision = 'close';
+    } else {
+        if (instrument.time[1] < 1) {
+            decision = CLOSE;
             reason = 'Candle time.';
+        } else {
+            if(!instrument.history[t['TS']]['Decision']['Closed']){
+                if(instrument.current_decision == BUY){
+                    if(instrument.price.sell_p >= instrument.tp || instrument.price.sell_p <= instrument.sl ){
+                        decision = CLOSE;
+                        reason = 'Take-Profit or Stop-Loss hit.\n Price: '+instrument.price.sell_p+', '+instrument.tp+', '+instrument.sl;
+                        instrument.history[t['TS']]['Decision']['Closed'] = true;
+                    }
+                }else if(instrument.current_decision == SELL){
+                    if(instrument.price.buy_p <= instrument.tp || instrument.price.buy_p >= instrument.sl ){
+                        decision = CLOSE;
+                        reason = 'Take-Profit or Stop-Loss hit.\n Price: '+instrument.price.buy_p+', '+instrument.tp+', '+instrument.sl;
+                        instrument.history[t['TS']]['Decision']['Closed'] = true;
+                    }
+                }
+            }
         }
     }
 
+    instrument.currently_deciding = false;
     return { decision, reason }
 }
 

@@ -10,48 +10,6 @@ let connection_established = false;
 document.getElementById('server_status').innerText = 'Not Connected!';
 document.getElementById('server_status').style.color = '#fa6464';
 
-
-// {
-//     "tradingType": "CFD",
-//     "accountId": 11971552,
-//     "accountSession": "4eb0b138-3071-4255-a84d-73c6bd305b0b",
-//     "customerSession": "4eb0b138-3071-4255-a84d-73c6bd305b0b",
-//     "email": "mchrisgm@gmail.com",
-//     "rememberMeCookie": null,
-//     "subSystem": "DEMO",
-//     "customerId": "4d9c9251-c07f-4f0f-851a-eeab5d8df995",
-//     "backupCode": null,
-//     "loginToken": null,
-//     "sessionCookieName": "TRADING212_SESSION_DEMO",
-//     "customerCookieName": "CUSTOMER_SESSION",
-//     "customer": {
-//         "id": 6049671,
-//         "uuid": "4d9c9251-c07f-4f0f-851a-eeab5d8df995",
-//         "email": "mchrisgm@gmail.com",
-//         "dealer": "AVUSUK",
-//         "lang": "EN",
-//         "timezone": "Europe/London",
-//         "registerDate": "2020-07-25T06:41:41+03:00"
-//     },
-//     "account": {
-//         "id": 11971552,
-//         "customerId": 6049671,
-//         "type": "DEMO",
-//         "createdDate": "2020-07-25T12:56:42.000+00:00",
-//         "lastSwitchedDate": "2020-11-06T21:13:00.000+00:00",
-//         "tradingType": "CFD",
-//         "status": "ACTIVE",
-//         "registerSource": "IOS",
-//         "currencyCode": "EUR",
-//         "readyToTrade": true
-//     },
-//     "serverTimestamp": "2022-11-09T17:44:04.809411433+02:00"
-// }
-
-// X-Trader-Client: application=WC4, version=2.2.62, accountId=11971552, dUUID=ed270909-eea8-417e-aa59-2b6ea8d66c39
-// X-Trader-Id: 29767d24-3ac9-7cca-b189-bf4e5fc498be
-// X-Trader-SeqId: 43
-
 function buy() {
 	if (executingScript) { return }
 	executingScript = true;
@@ -359,7 +317,8 @@ setInterval(function () {
 		chrome.tabs.getSelected(null, function (tab) {
 			chrome.tabs.executeScript(tab.id, { code }, function (result) {
 				chrome.runtime.sendMessage({ 'addr': 'data', 'data': result[0] }, (response) => {
-					clog('Decision: --' + response.farewell.object.decision + '-- Reason: ' + response.farewell.object.reason);
+					clog('Decision: --' + response.farewell.object.decision+'--');
+					clog('Reason: ' + response.farewell.object.reason);
 					if (response.farewell.object.decision == 'buy') {
 						buy();
 					} else if (response.farewell.object.decision == 'sell') {

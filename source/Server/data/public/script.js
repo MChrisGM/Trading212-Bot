@@ -167,9 +167,9 @@ window.onload = function () {
         qrcode.src = response['QRCode'];
 
         if (parseFloat(lr) > 0) {
-            live_val_label.style.color = 'rgb(0,255,0)';
+            live_val_label.style.color = '#1bc47d';
         } else if (parseFloat(lr) < 0) {
-            live_val_label.style.color = 'rgb(255,0,0)';
+            live_val_label.style.color = '#fa6464';
         } else {
             live_val_label.style.color = 'rgb(255,255,255)';
         }
